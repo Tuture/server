@@ -3,6 +3,8 @@ package fr.ensisa.hassenforder.chatrooms.server;
 import java.io.IOException;
 import java.net.Socket;
 
+import fr.ensisa.hassenforder.network.Protocol;
+
 public class CommandSession extends Thread {
 
 	private Socket connection;
@@ -30,6 +32,11 @@ public class CommandSession extends Thread {
 			CommandReader reader = new CommandReader (connection.getInputStream());
 			reader.receive ();
 			switch (reader.getType ()) {
+			case Protocol.RQ_CONNECT :
+				OperationStatus os = listener.connectCommandUser(reader.getName(), this);
+				if (os == OperationStatus.NOW_CONNECTED) writer.createOK();
+				else writer.createKO();
+				break;
 			case 0 : return false; // socket closed
 			case -1 : break;
 			default: return false; // connection jammed

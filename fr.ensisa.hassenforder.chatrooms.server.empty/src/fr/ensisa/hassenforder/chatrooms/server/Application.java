@@ -32,6 +32,7 @@ public class Application implements NetworkListener {
 		messages.start();
 		pusher = new MessagesPusher(this);
 		pusher.start();
+		
 	}
 	
 	@Override
