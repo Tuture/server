@@ -9,14 +9,15 @@ public class CommandSession extends Thread {
 
 	private Socket connection;
 	private NetworkListener listener;
-	
+
 	public CommandSession(Socket connection, NetworkListener listener) {
 		this.connection = connection;
 		this.listener = listener;
-		if( listener == null) throw new RuntimeException("listener cannot be null");
+		if (listener == null)
+			throw new RuntimeException("listener cannot be null");
 	}
 
-	public void close () {
+	public void close() {
 		this.interrupt();
 		try {
 			if (connection != null)
@@ -28,20 +29,32 @@ public class CommandSession extends Thread {
 
 	public boolean operate() {
 		try {
-			CommandWriter writer = new CommandWriter (connection.getOutputStream());
-			CommandReader reader = new CommandReader (connection.getInputStream());
-			reader.receive ();
-			switch (reader.getType ()) {
-			case Protocol.RQ_CONNECT :
+			CommandWriter writer = new CommandWriter(connection.getOutputStream());
+			CommandReader reader = new CommandReader(connection.getInputStream());
+			reader.receive();
+			switch (reader.getType()) {
+			case Protocol.RQ_CONNECT:
 				OperationStatus os = listener.connectCommandUser(reader.getName(), this);
-				if (os == OperationStatus.NOW_CONNECTED) writer.createOK();
-				else writer.createKO();
+				if (os == OperationStatus.NOW_CONNECTED)
+					writer.createOK();
+				else
+					writer.createKO();
 				break;
-			case 0 : return false; // socket closed
-			case -1 : break;
-			default: return false; // connection jammed
+			case Protocol.RQ_CHANNEL:
+				OperationStatus osCreateChannel = listener.createChannel(reader.getName(),reader.getChannelName(), reader.getChannelType());
+				if (osCreateChannel == OperationStatus.CHANNEL_CREATED)
+					writer.createOK();
+				else
+					writer.createKO();
+				break;
+			case 0:
+				return false; // socket closed
+			case -1:
+				break;
+			default:
+				return false; // connection jammed
 			}
-			writer.send ();
+			writer.send();
 			return true;
 		} catch (IOException e) {
 			return false;
@@ -50,11 +63,12 @@ public class CommandSession extends Thread {
 
 	public void run() {
 		while (true) {
-			if (! operate())
+			if (!operate())
 				break;
 		}
 		try {
-			if (connection != null) connection.close();
+			if (connection != null)
+				connection.close();
 		} catch (IOException e) {
 		}
 	}
