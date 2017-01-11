@@ -42,6 +42,7 @@ public class CommandSession extends Thread {
 				break;
 			case Protocol.RQ_CHANNEL:
 				System.out.println("trying to create a channel : ");
+				System.out.println(reader.getName() + " " + reader.getChannelName() + " " + reader.getChannelType());
 				OperationStatus osCreateChannel = listener.createChannel(reader.getName(),reader.getChannelName(), reader.getChannelType());
 				if (osCreateChannel == OperationStatus.CHANNEL_CREATED) {
 					writer.createOK(); System.out.println("channel created OK");}

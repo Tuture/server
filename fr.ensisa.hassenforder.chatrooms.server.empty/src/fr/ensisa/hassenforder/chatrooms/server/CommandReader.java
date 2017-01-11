@@ -23,6 +23,7 @@ public class CommandReader extends BasicAbstractReader {
 			name = readString();
 			break;
 		case Protocol.RQ_CHANNEL :
+			this.name = this.readString();
 			this.channelName = readString();
 			this.channelType = readInt();
 		}
