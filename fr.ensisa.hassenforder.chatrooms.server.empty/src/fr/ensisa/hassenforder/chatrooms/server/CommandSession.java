@@ -41,11 +41,12 @@ public class CommandSession extends Thread {
 					writer.createKO();
 				break;
 			case Protocol.RQ_CHANNEL:
+				System.out.println("trying to create a channel : ");
 				OperationStatus osCreateChannel = listener.createChannel(reader.getName(),reader.getChannelName(), reader.getChannelType());
-				if (osCreateChannel == OperationStatus.CHANNEL_CREATED)
-					writer.createOK();
-				else
-					writer.createKO();
+				if (osCreateChannel == OperationStatus.CHANNEL_CREATED) {
+					writer.createOK(); System.out.println("channel created OK");}
+				else {
+					writer.createKO(); System.out.println("Channl created KO");}
 				break;
 			case 0:
 				return false; // socket closed
