@@ -46,6 +46,9 @@ public class CommandReader extends BasicAbstractReader {
 			this.channelName = readString();
 			this.messageText = readString();
 			break;
+		case Protocol.RQ_LOAD :
+			this.name = readString();
+			break;
 		}
 	}
 

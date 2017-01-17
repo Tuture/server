@@ -2,7 +2,9 @@ package fr.ensisa.hassenforder.chatrooms.server;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
+import fr.ensisa.hassenforder.chatrooms.server.model.Channel;
 import fr.ensisa.hassenforder.network.Protocol;
 
 public class CommandSession extends Thread {
@@ -98,6 +100,12 @@ public class CommandSession extends Thread {
 					writer.createKO();
 					System.out.println("sending message KO");
 				}
+				break;
+			case Protocol.RQ_LOAD:
+				System.out.println("trying to load channels : ");
+				List<Channel> channels = listener.loadChannels(reader.getName());
+				if(channels.isEmpty()) writer.createKO();
+				else writer.createLoadChannels(channels);
 				break;
 			case 0:
 				return false; // socket closed
