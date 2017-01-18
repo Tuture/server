@@ -38,22 +38,17 @@ public class CommandSession extends Thread {
 			case Protocol.RQ_CONNECT:
 				System.out.println("trying to connect a User : ");
 				OperationStatus os = listener.connectCommandUser(reader.getName(), this);
-				if (os == OperationStatus.NOW_CONNECTED)
+				if (os == OperationStatus.NOW_CONNECTED) {
 					writer.createOK();
-				else
-					writer.createKO();
-				break;
-			case Protocol.RQ_DISCONNECT:
-				System.out.println("trying to disconnect a User : ");
-				OperationStatus osDisconnect = listener.disconnectUser(reader.getName());
-				if (osDisconnect == OperationStatus.NOW_DISCONNECTED) {
-					writer.createOK();
-					System.out.println("disconnection OK");
-				} else {
-					writer.createKO();
-					System.out.println("disconnection KO");
+					writer.send();
+					return true;
 				}
-				break;
+				else {
+					writer.createKO();
+					writer.send();
+					listener.disconnectUser(reader.getName());
+					return false;
+				}
 			case Protocol.RQ_CHANNEL:
 				System.out.println("trying to create a channel : ");
 				// System.out.println(reader.getName() + " " +
@@ -67,7 +62,33 @@ public class CommandSession extends Thread {
 					writer.createKO();
 					System.out.println("Channel created KO");
 				}
+				writer.send();
+			break;
+			/*case Protocol.RQ_DISCONNECT:
+				System.out.println("trying to disconnect a User : ");
+				OperationStatus osDisconnect = listener.disconnectUser(reader.getName());
+				if (osDisconnect == OperationStatus.NOW_DISCONNECTED) {
+					writer.createOK();
+					System.out.println("disconnection OK");
+				} else {
+					writer.createKO();
+					System.out.println("disconnection KO");
+				}
 				break;
+			*/
+			case Protocol.RQ_LOAD:
+				System.out.println("trying to load channels : ");
+				String name = reader.getName();
+				List<Channel> channels = listener.loadChannels(name);
+				if(channels!=null){
+					writer.createOK();
+					writer.createLoadChannels(channels, name);
+					writer.send();
+				    return true;
+			    }
+			    writer.createKO();
+				writer.send();
+			    return false;
 			case Protocol.RQ_UNSUSCRIBE:
 				System.out.println("trying to change subscription : ");
 				OperationStatus osUnsuscribe = listener.ChangeChannelSubscription(reader.getName(), reader.getChannelName(), reader.getSubscription());
@@ -78,7 +99,8 @@ public class CommandSession extends Thread {
 					writer.createKO();
 					System.out.println("suscribption changed KO");
 				}
-				break;
+				writer.send();
+				return true;
 			case Protocol.RQ_APPROBATION:
 				System.out.println("trying to approve a message : ");
 				OperationStatus osApprobation = listener.SetApprobation(reader.getName(), reader.getMessageID(), reader.getApprobation());
@@ -89,6 +111,7 @@ public class CommandSession extends Thread {
 					writer.createKO();
 					System.out.println("approbation changed KO");
 				}
+				writer.send();
 				break;
 			case Protocol.RQ_SEND_MESSAGE:
 				System.out.println("trying to send a message : ");
@@ -100,12 +123,7 @@ public class CommandSession extends Thread {
 					writer.createKO();
 					System.out.println("sending message KO");
 				}
-				break;
-			case Protocol.RQ_LOAD:
-				System.out.println("trying to load channels : ");
-				List<Channel> channels = listener.loadChannels(reader.getName());
-				if(channels.isEmpty()) writer.createKO();
-				else writer.createLoadChannels(channels);
+				writer.send();
 				break;
 			case 0:
 				return false; // socket closed

@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import fr.ensisa.hassenforder.chatrooms.server.model.Channel;
+import fr.ensisa.hassenforder.chatrooms.server.model.ChannelType;
 import fr.ensisa.hassenforder.network.BasicAbstractWriter;
 import fr.ensisa.hassenforder.network.Protocol;
 
@@ -21,30 +22,32 @@ public class CommandWriter extends BasicAbstractWriter {
 		writeInt(Protocol.RP_KO);
 	}
 
-	public void createLoadChannels(List<Channel> channels) {
+	public void createLoadChannels(List<Channel> channels, String name) {
 		writeInt(Protocol.RP_CHANNELS);
 		// Envoyer tout les channels
-		writeChannels(channels);
+		writeChannels(channels, name);
 	}
 
-	private void writeChannels(List<Channel> channels) {
+	private void writeChannels(List<Channel> channels, String name) {
 		// Envoyé le nombre de channels
 		writeInt(channels.size());
 		for(Channel c : channels)
-			writeChannel(c);
+			writeChannel(c, name);
 	}
 
-	private void writeChannel(Channel channel) {
+	private void writeChannel(Channel channel, String name) {
 		// Envoyé le channel
 		// le nom du channel
 		writeString(channel.getName());
 		// Le type du channel
-		writeInt(channel.getType().ordinal());
-		// Le nom du modérateur
-		if(channel.getModerator()!= null)
+		if(channel.getType().equals(ChannelType.FREE)) writeInt(0);
+		if(channel.getType().equals(ChannelType.MODERATED)) {
+			writeInt(1);
+			// Le nom du modérateur
 			writeString(channel.getModerator().getName());
+		}
 		// La souscription
-		writeBoolean(channel.isSubscriptor(channel.getName()));
+		writeBoolean(channel.isSubscriptor(name));
 	}
 
 }
