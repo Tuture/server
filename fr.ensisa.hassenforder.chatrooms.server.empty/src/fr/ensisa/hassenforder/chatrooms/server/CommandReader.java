@@ -19,12 +19,15 @@ public class CommandReader extends BasicAbstractReader {
 
 	public void receive() {
 		type = readInt ();
+		System.out.println("CommandReader : receive type " + type);
 		switch (type) {
 		case Protocol.RQ_CONNECT :
 			name = readString();
+			boolean connectBoolean = readBoolean();
 			break;
 		case Protocol.RQ_DISCONNECT :
 			this.name = readString();
+			boolean disconnectBoolean = readBoolean();
 			break;
 		case Protocol.RQ_CHANNEL :
 			this.name = readString();
@@ -61,7 +64,8 @@ public class CommandReader extends BasicAbstractReader {
 	}
 
 	public ChannelType getChannelType() {
-		if(channelType == 0) return ChannelType.FREE;
+		System.out.println("Channel Type in commande reader server : " + channelType);
+		if(channelType == Protocol.FREE) return ChannelType.FREE;
 		return ChannelType.MODERATED;
 	}
 	

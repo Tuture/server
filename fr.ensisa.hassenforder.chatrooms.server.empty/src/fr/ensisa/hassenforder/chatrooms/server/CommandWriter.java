@@ -40,9 +40,9 @@ public class CommandWriter extends BasicAbstractWriter {
 		// le nom du channel
 		writeString(channel.getName());
 		// Le type du channel
-		if(channel.getType().equals(ChannelType.FREE)) writeInt(0);
-		if(channel.getType().equals(ChannelType.MODERATED)) {
-			writeInt(1);
+		if(channel.getType().equals(ChannelType.FREE)) writeInt(Protocol.FREE);
+		else {
+			writeInt(Protocol.MODERATED);
 			// Le nom du modérateur
 			writeString(channel.getModerator().getName());
 		}
